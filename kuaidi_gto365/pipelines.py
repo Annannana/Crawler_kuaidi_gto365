@@ -1,11 +1,31 @@
 # -*- coding: utf-8 -*-
-
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
+import pymongo
 
 
-class KuaidiGto365Pipeline(object):
+class MongoPipeline(object):
+    def __init__(self, host, port, db, collection):
+        self.host = host
+        self.port = port
+        self.db = db
+        self.collection = collection
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            host=crawler.settings.get('MONGODB_HOST'),
+            port=crawler.settings.get('MONGODB_PORT'),
+            db=crawler.settings.get('MONGODB_DB'),
+            collection=crawler.settings.get('MONGODB_COLLECTION')
+        )
+
+    def open_spider(self, spider):
+        self.client = pymongo.MongoClient(host=self.host, port=self.port)
+        self.mydb = self.client[self.db]
+        self.mycollection = self.mydb[self.collection]
+
     def process_item(self, item, spider):
+        self.mycollection.insert(dict(item))
         return item
+
+    def close_spider(self, spider):
+        self.client.close()
