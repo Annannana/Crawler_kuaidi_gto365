@@ -45,3 +45,6 @@ class MaYiProxyMiddleware(object):
         proxy_url = 'http://s5.proxy.mayidaili.com:8123'
         request.headers['Mayi-Authorization'] = self.generate_sign()
         request.meta['proxy'] = proxy_url
+        if '61.166.150.125:17777' in request.url:
+            request = request.replace(url=request.url.split('?url=')[-1], dont_filter=True)
+            return request
