@@ -68,8 +68,4 @@ class Gto365Spider(scrapy.Spider):
         yield item
 
     def handle_detail(self, content):
-        if content:
-            ret = content.group(1)
-        else:
-            ret = ''
-        return ret
+        return content.group(1) if content else ''
